@@ -119,10 +119,14 @@ async function fillQuestion(question) {
     currentValue = answerEl.value || "";
   }
 
+  // Grab form-specific context if the panel exists
+  const contextInput = document.getElementById("ai-assist-context-input");
+  const formContext = contextInput ? contextInput.value.trim() : "";
+
   const answer = await new Promise((resolve, reject) => {
     chrome.runtime.sendMessage({
       type: "GENERATE_ANSWER",
-      payload: { question: question.text, type, options: extractedOptions, currentValue }
+      payload: { question: question.text, type, options: extractedOptions, currentValue, formContext }
     }, (res) => {
       if (chrome.runtime.lastError) return reject(new Error(chrome.runtime.lastError.message));
       if (res && res.success) resolve(res.data);
@@ -253,6 +257,56 @@ function injectFillAllButton() {
   });
 
   document.body.appendChild(btn);
+}
+
+// ─── Floating Context Panel ───────────────────────────────────────────────────
+
+/**
+ * Creates and appends a floating side panel where the user can type context
+ * specific to the current form.
+ */
+function injectContextPanel() {
+  if (document.getElementById("ai-assist-context-wrapper")) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.id = "ai-assist-context-wrapper";
+  
+  // The toggle button
+  const toggleBtn = document.createElement("button");
+  toggleBtn.id = "ai-assist-context-toggle";
+  toggleBtn.setAttribute("type", "button");
+  toggleBtn.setAttribute("aria-label", "Toggle Form Context Panel");
+  toggleBtn.innerHTML = `<span class="context-icon">🧠</span><span class="context-label">Form Context</span>`;
+  
+  // The slide-out panel
+  const panel = document.createElement("div");
+  panel.id = "ai-assist-context-panel";
+  panel.innerHTML = `
+    <div class="panel-header">
+      <strong>AI Form Context</strong>
+      <button type="button" id="ai-assist-context-close" aria-label="Close">✕</button>
+    </div>
+    <div class="panel-body">
+      <p>Type any specific instructions for this form (e.g., <em>"I'm applying for a frontend role, emphasize React experience."</em>)</p>
+      <textarea id="ai-assist-context-input" placeholder="Enter context here..."></textarea>
+    </div>
+  `;
+
+  wrapper.appendChild(toggleBtn);
+  wrapper.appendChild(panel);
+  document.body.appendChild(wrapper);
+
+  // Toggle logic
+  const togglePanel = (e) => {
+    e.stopPropagation();
+    wrapper.classList.toggle("open");
+    if (wrapper.classList.contains("open")) {
+      document.getElementById("ai-assist-context-input").focus();
+    }
+  };
+
+  toggleBtn.addEventListener("click", togglePanel);
+  document.getElementById("ai-assist-context-close").addEventListener("click", togglePanel);
 }
 
 // ─── Button factory ───────────────────────────────────────────────────────────
@@ -403,6 +457,9 @@ function init() {
 
   // Add the floating Fill All button
   injectFillAllButton();
+
+  // Add the floating Context Panel
+  injectContextPanel();
 
   // Start observer for questions that load later
   startMutationObserver();

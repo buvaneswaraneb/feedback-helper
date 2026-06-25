@@ -50,7 +50,9 @@ async function handleGenerateAnswer(payload) {
   const currentDate = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const currentTime = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
 
-  const systemPrompt = `You are an AI assistant helping a user fill out a form automatically.
+  const { currentValue, formContext } = payload;
+
+  let systemPrompt = `You are an AI assistant helping a user fill out a form automatically.
 You must provide ONLY the final answer to the question based on the user's profile.
 Do NOT provide explanations, pleasantries, or markdown formatting. Just the raw answer.
 
@@ -60,10 +62,13 @@ CURRENT REAL-WORLD DATE AND TIME:
 
 ${profileContext}`;
 
+  if (formContext) {
+    systemPrompt += `\n\nCRITICAL FORM-SPECIFIC INSTRUCTIONS FROM USER:\n${formContext}\n\nYou MUST prioritize these instructions above all else for this form.`;
+  }
+
   // Build User Prompt
   let userPrompt = `Question: "${question}"\nQuestion Type: ${type}\n`;
   
-  const { currentValue } = payload;
   if (currentValue && currentValue.trim() !== "") {
     userPrompt += `Current Value in Field: "${currentValue}"\n`;
     userPrompt += `NOTE: The user has already started typing or provided some content. Use this existing content to guide, expand upon, or formulate your final response.\n\n`;
