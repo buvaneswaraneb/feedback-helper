@@ -1,21 +1,18 @@
 # ✨ AI Assist for Google Forms
 
-A Chrome Extension (Manifest V3) that injects a clean **AI Assist button** next
-to every answer field on Google Forms — built as a proof-of-concept with a
-ready-to-extend architecture for future AI integration.
+A Chrome Extension (Manifest V3) that uses the **Groq API** to intelligently auto-fill Google Forms based on your personal profile. It injects a clean **AI Assist button** next to every answer field, allowing you to instantly generate accurate responses for any question type.
 
 ---
 
 ## Features
 
-- Detects every question type: Short Answer, Paragraph, Multiple Choice,
-  Checkboxes, Dropdown
-- Injects a non-intrusive `✨ AI` button beside each answer field
-- Handles dynamically loaded questions via `MutationObserver`
-- Prevents duplicate button injection
-- Works in both light and dark browser themes
-- Smooth hover/click animations with accessibility support (keyboard nav,
-  reduced motion)
+- **Profile-Aware AI Responses:** Fills answers based on your configurable user profile (Name, Email, Date of Birth, Custom Fields, etc.).
+- **Groq API Integration:** Powered by blazing fast LLMs like `llama-3.3-70b-versatile` via Groq.
+- **Form Context Panel:** Add specific instructions for the AI on a per-form basis (e.g., "I'm applying for a frontend role, emphasize React experience").
+- **Smart "Fill All" Button:** Automatically fills out the entire form with a single click.
+- **Universal Field Detection:** Detects every question type: Short Answer, Paragraph, Multiple Choice, Checkboxes, and Dropdowns.
+- **Dynamic Question Handling:** Seamlessly supports dynamically loaded questions (e.g., multi-page forms) via `MutationObserver`.
+- **Light/Dark Mode Support:** Works flawlessly in both light and dark browser themes.
 
 ---
 
@@ -23,14 +20,13 @@ ready-to-extend architecture for future AI integration.
 
 ```
 extension/
-├── manifest.json   — Permissions, content script registration
-├── content.js      — Core logic: form detection, button injection, observer
+├── manifest.json   — Permissions, content script registration, Groq API permissions
+├── background.js   — Service worker: handles Groq API communication, prompt building
+├── content.js      — Core logic: form detection, button injection, answer filling
+├── popup.html/js/css — Extension popup for configuring your Groq API Key and Profile
 ├── utils.js        — DOM helpers: question extraction, type detection, guards
 ├── styles.css      — Button styling, animations, light/dark themes
 ├── icons/          — Extension icons (16×16, 48×48, 128×128)
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
 └── README.md
 ```
 
@@ -38,122 +34,40 @@ extension/
 
 ## Installation (Developer Mode)
 
-1. **Clone or download** this repository so you have the `extension/` folder
-   on your machine.
-
+1. **Clone or download** this repository so you have the `extension/` folder on your machine.
 2. Open **Google Chrome** and navigate to:
    ```
    chrome://extensions
    ```
-
 3. Enable **Developer mode** using the toggle in the top-right corner.
-
 4. Click **"Load unpacked"** and select the `extension/` folder.
-
-5. The extension is now installed. Open any Google Form:
+5. Click on the extension icon in your toolbar to open the **Settings Popup**.
+6. Enter your **Groq API Key** and fill out your **User Profile**.
+7. Open any Google Form:
    ```
    https://docs.google.com/forms/d/...
    ```
-   You should see `✨ AI` buttons beside every question's answer field.
+   You should see `✨ AI` buttons beside every question's answer field, as well as a **"Fill All"** button and a **"Form Context"** panel.
 
 ---
 
 ## How It Works
 
 ### 1. Google Form Detection
+The content script is registered in `manifest.json` to run only on `https://docs.google.com/forms/*` pages. At runtime, `content.js` confirms the page is an active form before injecting UI elements.
 
-The content script is registered in `manifest.json` to run only on
-`https://docs.google.com/forms/*` pages. At runtime, `content.js` additionally
-checks for the presence of a `[role="list"]` or `<form>` element to confirm
-the page is an active form (and not a submission confirmation page).
+### 2. Context & Profile Gathering
+When an AI button is clicked, `background.js` gathers your saved Profile from `chrome.storage`, any Form Context you've provided, and the specific question context (including available dropdown/multiple-choice options).
 
-### 2. Question Container Discovery (`utils.js`)
+### 3. Prompt Construction
+A specialized prompt is built dynamically to instruct the Groq AI on how to answer. If options are available, the AI is constrained to picking an exact match. If you've already started typing an answer, the AI uses that as context to finish your thought.
 
-Google Forms renders every question as a `<div role="listitem">` element.
-`getAllQuestionContainers()` returns all such elements from the live DOM.
-
-### 3. Question Type Detection (`utils.js → detectQuestionType`)
-
-Each container is inspected for its answer widget:
-
-| Selector found               | Type detected    |
-|------------------------------|------------------|
-| `<textarea>`                 | Paragraph        |
-| `<input type="text">`        | Short Answer     |
-| `[role="radio"]`             | Multiple Choice  |
-| `[role="checkbox"]`          | Checkboxes       |
-| `[role="listbox"]`           | Dropdown         |
-
-### 4. Button Injection (`content.js → injectButtonIntoContainer`)
-
-For each container that hasn't been processed yet:
-- A question object `{ text, type, answerEl, container }` is built
-- A `<button class="ai-assist-btn">` is created with a click handler
-- The button is wrapped in a `<div class="ai-assist-wrapper">` and appended
-  after the answer element's parent — no existing elements are moved or restyled
-
-### 5. Duplicate Prevention (`utils.js → isAlreadyInjected / markAsInjected`)
-
-After injection, the container receives a `data-ai-assist-injected="true"`
-attribute. All scanning functions check for this attribute first and skip
-containers that already have a button.
-
-### 6. Dynamic Question Handling (`content.js → startMutationObserver`)
-
-A `MutationObserver` watches `document.body` for `childList` + `subtree`
-mutations. Whenever new nodes are added (e.g., the user navigates to the next
-page of a multi-page form), `scanAndInjectAll()` is called — which safely
-re-scans the DOM and injects buttons only into new, unprocessed containers.
+### 4. Smart Filling
+The resulting AI answer is sent back to `content.js`, which simulates native DOM events (`input`, `change`, `click`, `mousedown`) to ensure Google Forms registers the answer properly. 
 
 ---
 
-## Console Output (Demo Behaviour)
-
-Clicking any `✨ AI` button logs to the browser console:
-
-```
-✨ AI Assist
-Question:
-What is your name?
-
-Type:
-Short Answer
-```
-
----
-
-## Extending for Real AI Integration
-
-The click handler is intentionally isolated in `content.js`:
-
-```js
-async function handleAIClick(question) {
-  // TODAY: logs to console
-  // FUTURE: replace this body with your API call
-
-  // Example future implementation:
-  // const answer = await fetchAISuggestion(question.text, question.type);
-  // fillAnswerField(question.answerEl, answer);
-
-  console.log(`Question:\n${question.text}\n\nType:\n${question.type}`);
-}
-```
-
-To add AI functionality later:
-
-1. Implement `fetchAISuggestion(questionText, questionType)` — call your AI API
-2. Implement `fillAnswerField(answerEl, answer)` — write the answer into the DOM
-3. Call both from inside `handleAIClick`
-4. Add your API key management (e.g., via `chrome.storage` or a background
-   service worker) — **never hard-code keys in content scripts**
-
----
-
-## Notes
-
-- The extension only requests **no special permissions** beyond content script
-  access to Google Forms URLs, keeping it minimal and safe.
-- `utils.js` is loaded before `content.js` (see `manifest.json`) so all helper
-  functions are available when the main script runs.
-- Google may update their Forms DOM structure over time; if buttons stop
-  appearing, review the selectors in `utils.js`.
+## Permissions
+- `storage`: Used to securely store your Groq API Key, preferences, and Profile data locally.
+- `https://api.groq.com/*`: Used to communicate with the Groq inference endpoints.
+- Content scripts only run on `https://docs.google.com/forms/*`.
