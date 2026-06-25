@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "AI Assist for Google Forms",
+  "version": "1.0.0",
+  "description": "Injects an AI Assist button next to every answer field on Google Forms.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://api.groq.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://docs.google.com/forms/*"],
+      "js": ["utils.js", "content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "AI Assist for Google Forms",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  }
+}

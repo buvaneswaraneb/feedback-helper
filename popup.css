@@ -1,0 +1,208 @@
+:root {
+  --bg-color: #f9f9fb;
+  --panel-bg: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  --primary: #7c3aed;
+  --primary-hover: #6d28d9;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --input-bg: #f1f5f9;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  width: 350px;
+  max-height: 600px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+header {
+  background-color: var(--panel-bg);
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+}
+
+header h2 {
+  font-size: 18px;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+header p {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+main {
+  padding: 16px;
+}
+
+section {
+  background-color: var(--panel-bg);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
+}
+
+h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.header-with-action h3 {
+  margin-bottom: 0;
+}
+
+.description {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+}
+
+input, select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--input-bg);
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: #fff;
+}
+
+small {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+small a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+small a:hover {
+  text-decoration: underline;
+}
+
+.custom-field-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.custom-field-row input {
+  flex: 1;
+}
+
+.btn-remove {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-remove:hover {
+  color: var(--danger-hover);
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  width: 100%;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-small {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.btn-small:hover {
+  background-color: #e2e8f0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-msg {
+  font-size: 12px;
+  color: #10b981; /* green */
+  min-height: 14px;
+}

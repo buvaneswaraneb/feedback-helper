@@ -1,0 +1,216 @@
+/**
+ * styles.css
+ * ----------
+ * Styles for the AI Assist button injected into Google Forms.
+ *
+ * Design goals:
+ *  ✓ Unobtrusive — does not shift or override any of Google's existing layout
+ *  ✓ Modern rounded pill button with a soft glow
+ *  ✓ Smooth hover + active animations
+ *  ✓ Supports both light and dark browser/OS themes via prefers-color-scheme
+ *  ✓ High z-index so the button is never buried under form layers
+ */
+
+/* ─── Wrapper ──────────────────────────────────────────────────────────────── */
+/*
+ * The wrapper is injected as a new child after the answer area.
+ * `display: flex` keeps it from collapsing, and the small top margin
+ * creates breathing room beneath the input without shifting existing elements.
+ */
+.ai-assist-wrapper {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
+  margin-bottom: 2px;
+}
+
+/* ─── Button base ──────────────────────────────────────────────────────────── */
+.ai-assist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 5px 12px;
+  border: none;
+  border-radius: 20px;          /* Pill shape */
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: "Google Sans", Roboto, Arial, sans-serif;
+  letter-spacing: 0.3px;
+  line-height: 1;
+
+  /* Stacking — sits above Google Forms' own elements */
+  position: relative;
+  z-index: 9999;
+
+  /* Light theme defaults */
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  color: #ffffff;
+  box-shadow:
+    0 2px 6px rgba(124, 58, 237, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.12);
+
+  /* Smooth all interactive properties */
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease,
+    opacity 0.15s ease;
+
+  /* Reset any inherited browser button styles */
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  user-select: none;
+}
+
+/* ─── Icon & label ─────────────────────────────────────────────────────────── */
+.ai-assist-icon {
+  font-size: 13px;
+  line-height: 1;
+  /* Subtle pop animation on the sparkle when button is hovered */
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.ai-assist-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ─── Hover state ──────────────────────────────────────────────────────────── */
+.ai-assist-btn:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  box-shadow:
+    0 4px 14px rgba(124, 58, 237, 0.45),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.ai-assist-btn:hover .ai-assist-icon {
+  transform: rotate(-10deg) scale(1.2);
+}
+
+/* ─── Active / click state ─────────────────────────────────────────────────── */
+.ai-assist-btn:active {
+  transform: translateY(0px) scale(0.97);
+  box-shadow:
+    0 1px 4px rgba(124, 58, 237, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ─── Focus-visible (keyboard nav accessibility) ───────────────────────────── */
+.ai-assist-btn:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+/* ─── Dark theme ───────────────────────────────────────────────────────────── */
+/*
+ * When the OS or browser is in dark mode, Google Forms also switches to a
+ * dark background. We lighten the button slightly for better contrast.
+ */
+@media (prefers-color-scheme: dark) {
+  .ai-assist-btn {
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+    color: #1a1a2e;
+    box-shadow:
+      0 2px 8px rgba(167, 139, 250, 0.4),
+      0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .ai-assist-btn:hover {
+    background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 100%);
+    box-shadow:
+      0 4px 16px rgba(167, 139, 250, 0.55),
+      0 2px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .ai-assist-btn:focus-visible {
+    outline-color: #c4b5fd;
+  }
+}
+
+/* ─── Reduced motion ───────────────────────────────────────────────────────── */
+/*
+ * Respects the user's preference for reduced motion.
+ * All transitions and transforms are disabled.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .ai-assist-btn,
+  .ai-assist-btn:hover,
+  .ai-assist-btn:active,
+  .ai-assist-icon {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ─── Fill All Button (Floating) ───────────────────────────────────────────── */
+#ai-assist-fill-all {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-family: "Google Sans", Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  user-select: none;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
+#ai-assist-fill-all:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.5), 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+#ai-assist-fill-all:active {
+  transform: translateY(0px) scale(0.98);
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+}
+
+#ai-assist-fill-all:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.fill-all-icon {
+  font-size: 16px;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+#ai-assist-fill-all:hover .fill-all-icon {
+  transform: rotate(-10deg) scale(1.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  #ai-assist-fill-all {
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+    color: #1a1a2e;
+    box-shadow: 0 4px 12px rgba(167, 139, 250, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  #ai-assist-fill-all:hover {
+    background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 100%);
+    box-shadow: 0 6px 16px rgba(167, 139, 250, 0.5), 0 3px 6px rgba(0, 0, 0, 0.3);
+  }
+}
