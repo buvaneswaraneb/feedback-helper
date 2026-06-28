@@ -1,19 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Assist Profile Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Assist Settings</title>
   <link rel="stylesheet" href="popup.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet" />
 </head>
+
 <body>
-  <header>
-    <h2><span class="icon">✨</span> AI Assist</h2>
+  <header class="gform-header">
+    <div class="gform-header-title">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Google Form Purple Document Base -->
+        <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z"
+          fill="var(--gform-primary)" />
+        <path d="M14 2V8H20" fill="var(--gform-primary-hover)" />
+        <!-- Document lines -->
+        <path d="M8 12H13V10H8V12ZM8 16H16V14H8V16Z" fill="var(--gform-card-bg)" />
+        <!-- Google AI 4-pointed Sparkle (Gemini style) -->
+        <path d="M18.5 20.5L16.8 16.8L13.1 15.1L16.8 13.4L18.5 9.7L20.2 13.4L23.9 15.1L20.2 16.8L18.5 20.5Z"
+          fill="url(#sparkle-gradient)" />
+        <defs>
+          <linearGradient id="sparkle-gradient" x1="13.1" y1="9.7" x2="23.9" y2="20.5" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#4285F4" />
+            <stop offset="50%" stop-color="#EA4335" />
+            <stop offset="100%" stop-color="#F8BC04" />
+          </linearGradient>
+        </defs>
+      </svg>
+      Osmium AI Feedback Assistant
+    </div>
     <p>Context for your AI generated responses</p>
   </header>
-
   <main>
-    <section>
+    <section class="gform-card">
+      <h3>General Settings</h3>
+      <div class="form-group toggle-group">
+        <label for="aiEnabled">Enable AI Assist on Forms</label>
+        <label class="switch">
+          <input type="checkbox" id="aiEnabled" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <div class="form-group toggle-group" style="margin-top: 12px; margin-bottom: 16px;">
+        <label for="questionAssistEnabled" style="font-size: 13px; color: var(--gform-text-secondary);">Show per-question AI buttons</label>
+        <label class="switch" style="transform: scale(0.85); transform-origin: right;">
+          <input type="checkbox" id="questionAssistEnabled" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label for="themeSelect">Extension Theme</label>
+        <select id="themeSelect">
+          <option value="auto">Auto (System Default)</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="gform-card">
       <h3>API Settings</h3>
       <div class="form-group">
         <label for="groqApiKey">Groq API Key</label>
@@ -31,30 +83,18 @@
       </div>
     </section>
 
-    <section>
+    <section class="gform-card">
       <h3>Personal Info</h3>
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" id="name" placeholder="John Doe" />
+      <div class="form-group"><label for="name">Name</label><input type="text" id="name" placeholder="Your Answer" />
       </div>
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="john.doe@example.com" />
-      </div>
-      <div class="form-group">
-        <label for="dob">Date of Birth</label>
-        <input type="date" id="dob" />
-      </div>
-      <div class="form-group">
-        <label for="regNo">Register Number</label>
-        <input type="text" id="regNo" placeholder="12345678" />
-      </div>
-      <div class="form-group">
-        <label for="dept">Department</label>
-        <input type="text" id="dept" placeholder="Computer Science" />
-      </div>
-      <div class="form-group">
-        <label for="rating">Default Feedback Rating</label>
+      <div class="form-group"><label for="email">Email</label><input type="email" id="email"
+          placeholder="Your Answer" /></div>
+      <div class="form-group"><label for="dob">Date of Birth</label><input type="date" id="dob" /></div>
+      <div class="form-group"><label for="regNo">Register Number</label><input type="text" id="regNo"
+          placeholder="Your Answer" /></div>
+      <div class="form-group"><label for="dept">Department</label><input type="text" id="dept"
+          placeholder="Your Answer" /></div>
+      <div class="form-group"><label for="rating">Default Feedback Rating</label>
         <select id="rating">
           <option value="">Let AI Decide</option>
           <option value="Excellent (5/5) - Very Positive">Excellent (5/5) - Very Positive</option>
@@ -65,8 +105,7 @@
         </select>
         <small>Guides the AI when answering rating or feedback questions.</small>
       </div>
-      <div class="form-group">
-        <label for="tone">AI Answer Tone</label>
+      <div class="form-group"><label for="tone">AI Answer Tone</label>
         <select id="tone">
           <option value="">Let AI Decide</option>
           <option value="Simple and Concise">Simple and Concise</option>
@@ -78,23 +117,21 @@
       </div>
     </section>
 
-    <section>
+    <section class="gform-card">
       <div class="header-with-action">
         <h3>Custom Attributes</h3>
-        <button type="button" id="addCustomBtn" class="btn-small">+ Add</button>
+        <button type="button" id="addCustomBtn" class="gform-btn-small">+ Add Attribute</button>
       </div>
       <p class="description">Add extra key-value pairs (e.g. "Skills" - "React, Node").</p>
-      <div id="customFieldsContainer">
-        <!-- Dynamic fields go here -->
-      </div>
+      <div id="customFieldsContainer"><!-- Dynamic fields go here --></div>
     </section>
 
     <div class="actions">
+      <button type="button" id="saveBtn" class="gform-btn-primary">Save Settings</button>
       <span id="saveStatus" class="status-msg"></span>
-      <button type="button" id="saveBtn" class="btn-primary">Save Settings</button>
     </div>
   </main>
-
   <script src="popup.js"></script>
 </body>
+
 </html>

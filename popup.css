@@ -1,14 +1,26 @@
 :root {
-  --bg-color: #f9f9fb;
-  --panel-bg: #ffffff;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --border-color: #e2e8f0;
-  --primary: #7c3aed;
-  --primary-hover: #6d28d9;
-  --danger: #ef4444;
-  --danger-hover: #dc2626;
-  --input-bg: #f1f5f9;
+  --gform-primary: #673ab7;
+  --gform-primary-hover: #5e35b1;
+  --gform-bg: #f0ebf8; /* Light purple typical of forms */
+  --gform-card-bg: #ffffff;
+  --gform-border: #dadce0;
+  --gform-input-border: #80868b;
+  --gform-input-bg: #ffffff;
+  --gform-text-primary: #202124;
+  --gform-text-secondary: #5f6368;
+  --gform-danger: #d93025;
+}
+
+[data-theme="dark"] {
+    --gform-primary: #d0bcff;
+    --gform-primary-hover: #b69df8;
+    --gform-bg: #1e1e1e;
+    --gform-card-bg: #2b2b2b;
+    --gform-border: #444746;
+    --gform-input-border: #8e918f;
+    --gform-input-bg: #2b2b2b;
+    --gform-text-primary: #e3e3e3;
+    --gform-text-secondary: #c4c7c5;
 }
 
 * {
@@ -18,54 +30,123 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-  width: 350px;
+  font-family: 'Google Sans', Roboto, -apple-system, sans-serif;
+  background-color: var(--gform-bg);
+  color: var(--gform-text-primary);
+  width: 380px;
   max-height: 600px;
   overflow-y: auto;
   font-size: 14px;
+  padding: 16px; /* give some outer padding */
 }
 
-header {
-  background-color: var(--panel-bg);
-  padding: 16px;
-  border-bottom: 1px solid var(--border-color);
-  text-align: center;
+/* Instead of a header block, let's make it look like the top card of a Google form */
+header.gform-header {
+  background-color: var(--gform-card-bg);
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid var(--gform-border);
+  border-top: 8px solid var(--gform-primary);
+  margin-bottom: 12px;
+  box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+  display: flex;
+  flex-direction: column;
 }
 
-header h2 {
-  font-size: 18px;
-  color: var(--primary);
+.gform-header-title {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  color: var(--gform-text-primary);
 }
 
-header p {
-  color: var(--text-secondary);
-  font-size: 12px;
-  margin-top: 4px;
+.gform-header-title svg {
+  width: 24px;
+  height: 24px;
+}
+
+.gform-header p {
+  font-size: 14px;
+  color: var(--gform-text-secondary);
+  margin-top: 8px;
+  line-height: 20px;
 }
 
 main {
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-section {
-  background-color: var(--panel-bg);
+section.gform-card {
+  background-color: var(--gform-card-bg);
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  border: 1px solid var(--border-color);
+  padding: 24px;
+  border: 1px solid var(--gform-border);
+  box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
 }
 
 h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: var(--gform-text-primary);
+  line-height: 24px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+label {
+  display: block;
   font-size: 14px;
-  margin-bottom: 12px;
-  color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--gform-text-primary);
+}
+
+input, select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--gform-input-border);
+  border-radius: 4px;
+  background-color: var(--gform-input-bg);
+  font-size: 14px;
+  color: var(--gform-text-primary);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: 'Roboto', sans-serif;
+}
+
+input:hover, select:hover {
+  border-color: var(--gform-text-primary);
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--gform-primary);
+  box-shadow: inset 0 0 0 1px var(--gform-primary);
+}
+
+small {
+  display: block;
+  font-size: 12px;
+  color: var(--gform-text-secondary);
+  margin-top: 6px;
+}
+
+small a {
+  color: var(--gform-primary);
+  text-decoration: none;
+}
+small a:hover {
+  text-decoration: underline;
 }
 
 .header-with-action {
@@ -74,135 +155,163 @@ h3 {
   align-items: center;
   margin-bottom: 8px;
 }
-
-.header-with-action h3 {
-  margin-bottom: 0;
-}
-
+.header-with-action h3 { margin-bottom: 0; }
 .description {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 12px;
-}
-
-.form-group {
-  margin-bottom: 12px;
-}
-
-.form-group:last-child {
-  margin-bottom: 0;
-}
-
-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 4px;
-  color: var(--text-secondary);
-}
-
-input, select {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background-color: var(--input-bg);
   font-size: 14px;
-  color: var(--text-primary);
-  transition: border-color 0.2s, background-color 0.2s;
+  color: var(--gform-text-secondary);
+  margin-bottom: 16px;
 }
 
-input:focus, select:focus {
-  outline: none;
-  border-color: var(--primary);
-  background-color: #fff;
-}
-
-small {
-  display: block;
-  font-size: 11px;
-  color: var(--text-secondary);
-  margin-top: 4px;
-}
-
-small a {
-  color: var(--primary);
-  text-decoration: none;
-}
-
-small a:hover {
-  text-decoration: underline;
-}
-
+/* Custom fields layout */
 .custom-field-row {
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
-
-.custom-field-row input {
-  flex: 1;
-}
+.custom-field-row input { flex: 1; }
 
 .btn-remove {
   background: none;
   border: none;
-  color: var(--danger);
+  color: var(--gform-text-secondary);
   cursor: pointer;
-  padding: 0 4px;
-  font-size: 16px;
+  padding: 8px;
+  font-size: 18px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
 }
-
 .btn-remove:hover {
-  color: var(--danger-hover);
+  background-color: rgba(0,0,0,0.04);
+  color: var(--gform-text-primary);
+}
+[data-theme="dark"]
+  .btn-remove:hover {
+    background-color: rgba(255,255,255,0.04);
+  }
+
+
+.gform-btn-primary {
+  width: auto;
+  background-color: var(--gform-primary);
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
 }
 
-button {
+.gform-btn-primary:hover {
+  background-color: var(--gform-primary-hover);
+  box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+}
+
+[data-theme="dark"]
+  .gform-btn-primary {
+    color: #1e1e1e; /* Dark text on light purple button for dark mode */
+  }
+
+
+.gform-btn-small {
+  background-color: transparent;
+  color: var(--gform-primary);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  font-family: inherit;
   transition: background-color 0.2s;
 }
 
-.btn-primary {
-  width: 100%;
-  background-color: var(--primary);
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+.gform-btn-small:hover {
+  background-color: rgba(103, 58, 183, 0.04);
 }
+[data-theme="dark"]
+  .gform-btn-small:hover {
+    background-color: rgba(208, 188, 255, 0.08);
+  }
 
-.btn-primary:hover {
-  background-color: var(--primary-hover);
-}
-
-.btn-small {
-  background-color: var(--input-bg);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.btn-small:hover {
-  background-color: #e2e8f0;
-}
 
 .actions {
   display: flex;
-  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
+  padding: 8px 0;
+  background-color: transparent;
 }
 
 .status-msg {
-  font-size: 12px;
-  color: #10b981; /* green */
-  min-height: 14px;
+  font-size: 14px;
+  color: #1e8e3e;
+  font-weight: 500;
+}
+[data-theme="dark"]
+  .status-msg { color: #81c995; }
+
+/* Hide hr since we use layout gap */
+.gform-divider {
+  display: none;
+}
+
+/* Toggle Switch Styles */
+.toggle-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.toggle-group label {
+  margin-bottom: 0;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .2s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .2s;
+}
+input:checked + .slider {
+  background-color: var(--gform-primary);
+}
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--gform-primary);
+}
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+.slider.round {
+  border-radius: 20px;
+}
+.slider.round:before {
+  border-radius: 50%;
 }

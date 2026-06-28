@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const aiEnabledToggle = document.getElementById("aiEnabled");
+  const questionAssistEnabledToggle = document.getElementById("questionAssistEnabled");
+  const themeSelect = document.getElementById("themeSelect");
+  
   const groqApiKeyInput = document.getElementById("groqApiKey");
   const groqModelSelect = document.getElementById("groqModel");
   const nameInput = document.getElementById("name");
@@ -13,8 +17,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveBtn = document.getElementById("saveBtn");
   const saveStatus = document.getElementById("saveStatus");
 
+  function applyTheme(theme) {
+    if (theme === 'auto') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  }
+
   // Load existing settings
-  chrome.storage.sync.get(["groqApiKey", "groqModel", "profile", "customFields"], (result) => {
+  chrome.storage.sync.get(["aiEnabled", "questionAssistEnabled", "theme", "groqApiKey", "groqModel", "profile", "customFields"], (result) => {
+    // Defaults: AI Enabled by default, Theme Auto by default
+    aiEnabledToggle.checked = result.aiEnabled !== false; 
+    questionAssistEnabledToggle.checked = result.questionAssistEnabled !== false; 
+    themeSelect.value = result.theme || "auto";
+    applyTheme(themeSelect.value);
+
     if (result.groqApiKey) groqApiKeyInput.value = result.groqApiKey;
     if (result.groqModel) groqModelSelect.value = result.groqModel;
     
@@ -31,6 +50,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (result.customFields && result.customFields.length > 0) {
       result.customFields.forEach(field => addCustomFieldRow(field.key, field.value));
     }
+  });
+
+  // Watch for system theme changes if set to auto
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (themeSelect.value === 'auto') {
+      applyTheme('auto');
+    }
+  });
+
+  themeSelect.addEventListener('change', (e) => {
+    applyTheme(e.target.value);
+    chrome.storage.sync.set({ theme: e.target.value });
+  });
+
+  aiEnabledToggle.addEventListener('change', (e) => {
+    chrome.storage.sync.set({ aiEnabled: e.target.checked });
+  });
+
+  questionAssistEnabledToggle.addEventListener('change', (e) => {
+    chrome.storage.sync.set({ questionAssistEnabled: e.target.checked });
   });
 
   function addCustomFieldRow(key = "", value = "") {
@@ -76,6 +115,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const settings = {
+      aiEnabled: aiEnabledToggle.checked,
+      questionAssistEnabled: questionAssistEnabledToggle.checked,
+      theme: themeSelect.value,
       groqApiKey: groqApiKeyInput.value.trim(),
       groqModel: groqModelSelect.value,
       profile: {

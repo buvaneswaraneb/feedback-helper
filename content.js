@@ -12,6 +12,12 @@
  * Dependencies: utils.js (loaded first via manifest.json)
  */
 
+let isQuestionAssistEnabled = true;
+
+const ICON_SPARKLE = `<svg class="ai-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22Z"/></svg>`;
+const ICON_WAIT = `<svg class="ai-svg-icon ai-spin" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`;
+const ICON_ERROR = `<svg class="ai-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+
 // ─── AI answer fillers ────────────────────────────────────────────────────────
 
 /**
@@ -172,7 +178,7 @@ async function fillQuestion(question) {
  */
 async function handleAIClick(question, btnEl) {
   const originalHtml = btnEl.innerHTML;
-  btnEl.innerHTML = `<span class="ai-assist-icon" aria-hidden="true">⏳</span><span class="ai-assist-label">Thinking...</span>`;
+  btnEl.innerHTML = `<span class="ai-assist-icon" aria-hidden="true">${ICON_WAIT}</span><span class="ai-assist-label">Thinking...</span>`;
   btnEl.disabled = true;
 
   try {
@@ -181,7 +187,7 @@ async function handleAIClick(question, btnEl) {
     btnEl.disabled = false;
   } catch (error) {
     console.error("AI Assist Error:", error.message);
-    btnEl.innerHTML = `<span class="ai-assist-icon" aria-hidden="true">❌</span><span class="ai-assist-label">Error</span>`;
+    btnEl.innerHTML = `<span class="ai-assist-icon" aria-hidden="true">${ICON_ERROR}</span><span class="ai-assist-label">Error</span>`;
     btnEl.disabled = false;
     setTimeout(() => { btnEl.innerHTML = originalHtml; }, 3000);
   }
@@ -212,7 +218,7 @@ async function fillAllQuestions(btn) {
 
   for (const question of questions) {
     btn.innerHTML =
-      `<span class="fill-all-icon">⏳</span>` +
+      `<span class="fill-all-icon">${ICON_WAIT}</span>` +
       `<span class="fill-all-label">Filling ${done + 1}/${total}…</span>`;
 
     try {
@@ -229,12 +235,12 @@ async function fillAllQuestions(btn) {
   }
 
   const label = failed > 0 ? `Done (${failed} failed)` : "Fill All ✓";
-  btn.innerHTML = `<span class="fill-all-icon">✨</span><span class="fill-all-label">${label}</span>`;
+  btn.innerHTML = `<span class="fill-all-icon">${ICON_SPARKLE}</span><span class="fill-all-label">${label}</span>`;
   btn.disabled = false;
 
   // Revert label after 4 seconds
   setTimeout(() => {
-    btn.innerHTML = `<span class="fill-all-icon">✨</span><span class="fill-all-label">Fill All</span>`;
+    btn.innerHTML = `<span class="fill-all-icon">${ICON_SPARKLE}</span><span class="fill-all-label">Fill All</span>`;
   }, 4000);
 }
 
@@ -249,7 +255,7 @@ function injectFillAllButton() {
   btn.id = "ai-assist-fill-all";
   btn.setAttribute("type", "button");
   btn.setAttribute("aria-label", "Fill all form questions with AI");
-  btn.innerHTML = `<span class="fill-all-icon">✨</span><span class="fill-all-label">Fill All</span>`;
+  btn.innerHTML = `<span class="fill-all-icon">${ICON_SPARKLE}</span><span class="fill-all-label">Fill All</span>`;
 
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -276,7 +282,7 @@ function injectContextPanel() {
   toggleBtn.id = "ai-assist-context-toggle";
   toggleBtn.setAttribute("type", "button");
   toggleBtn.setAttribute("aria-label", "Toggle Form Context Panel");
-  toggleBtn.innerHTML = `<span class="context-icon">🧠</span><span class="context-label">Form Context</span>`;
+  toggleBtn.innerHTML = `<span class="context-icon">${ICON_SPARKLE}</span><span class="context-label">Form Context</span>`;
   
   // The slide-out panel
   const panel = document.createElement("div");
@@ -322,7 +328,7 @@ function createAIButton(question) {
   button.className = "ai-assist-btn";
   button.setAttribute("aria-label", `AI Assist for: ${question.text}`);
   button.setAttribute("type", "button"); // Prevent any accidental form submission
-  button.innerHTML = `<span class="ai-assist-icon" aria-hidden="true">✨</span><span class="ai-assist-label">AI</span>`;
+  button.innerHTML = `<span class="ai-assist-icon" aria-hidden="true">${ICON_SPARKLE}</span><span class="ai-assist-label">AI</span>`;
 
   button.addEventListener("click", (event) => {
     // Stop the click from bubbling into Google Forms' own event handlers
@@ -358,6 +364,8 @@ function createButtonWrapper(button) {
  * @param {Element} container
  */
 function injectButtonIntoContainer(container) {
+  if (!isQuestionAssistEnabled) return;
+
   // Guard: skip containers we've already processed
   if (isAlreadyInjected(container)) return;
 
@@ -446,23 +454,82 @@ function isActiveGoogleForm() {
  * Main init function. Waits briefly for Google Forms to finish its own
  * JavaScript hydration, then begins scanning and observing.
  */
-function init() {
-  if (!isActiveGoogleForm()) {
-    // Not an active form — do nothing (e.g., form confirmation page)
-    return;
+let observer = null;
+
+function removeAllInjections() {
+  document.querySelectorAll('.ai-assist-wrapper').forEach(el => el.remove());
+  document.querySelectorAll('[data-ai-injected]').forEach(el => el.removeAttribute('data-ai-injected'));
+  
+  const fillAllBtn = document.getElementById("ai-assist-fill-all");
+  if (fillAllBtn) fillAllBtn.remove();
+  
+  const contextWrapper = document.getElementById("ai-assist-context-wrapper");
+  if (contextWrapper) contextWrapper.remove();
+
+  if (observer) {
+    observer.disconnect();
+    observer = null;
   }
+}
 
-  // Initial scan for questions already in the DOM
+function startAI() {
   scanAndInjectAll();
-
-  // Add the floating Fill All button
   injectFillAllButton();
-
-  // Add the floating Context Panel
   injectContextPanel();
+  observer = startMutationObserver();
+}
 
-  // Start observer for questions that load later
-  startMutationObserver();
+function applyThemeToHost(theme) {
+  if (!theme || theme === 'auto') {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-ai-theme', isDark ? 'dark' : 'light');
+  } else {
+    document.documentElement.setAttribute('data-ai-theme', theme);
+  }
+}
+
+function init() {
+  if (!isActiveGoogleForm()) return;
+
+  chrome.storage.sync.get(["aiEnabled", "questionAssistEnabled", "theme"], (res) => {
+    isQuestionAssistEnabled = res.questionAssistEnabled !== false;
+    applyThemeToHost(res.theme);
+    if (res.aiEnabled !== false) {
+      startAI();
+    }
+  });
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    chrome.storage.sync.get(["theme"], (res) => {
+      if (!res.theme || res.theme === 'auto') {
+        applyThemeToHost('auto');
+      }
+    });
+  });
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync") {
+      if (changes.theme) {
+        applyThemeToHost(changes.theme.newValue);
+      }
+      if (changes.questionAssistEnabled) {
+        isQuestionAssistEnabled = changes.questionAssistEnabled.newValue !== false;
+        if (isQuestionAssistEnabled) {
+          scanAndInjectAll();
+        } else {
+          document.querySelectorAll('.ai-assist-wrapper').forEach(el => el.remove());
+          document.querySelectorAll('[data-ai-injected]').forEach(el => el.removeAttribute('data-ai-injected'));
+        }
+      }
+      if (changes.aiEnabled) {
+        if (changes.aiEnabled.newValue === false) {
+          removeAllInjections();
+        } else {
+          startAI();
+        }
+      }
+    }
+  });
 }
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
